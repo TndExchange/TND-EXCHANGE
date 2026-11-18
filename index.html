@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<title>TND Exchange – Buy USDT</title>
+<style>
+  :root {
+    --green-900: #0b3d2e; --green-700: #0f5a41; --green-500: #1c8a62;
+    --green-50: #f3f9f6; --ink: #12261f; --muted: #5f7a6f; --line: #d5e6dd;
+    --error: #b3261e; --wa: #25d366;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; min-height: 100%; }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: #fff; color: var(--ink);
+    min-height: 100vh; min-height: 100dvh;
+    display: flex; align-items: center; justify-content: center;
+    padding: max(24px, env(safe-area-inset-top)) 20px max(104px, env(safe-area-inset-bottom));
+  }
+  main { width: 100%; max-width: 440px; animation: rise .6s ease both; }
+  @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+
+  .brand { display: flex; align-items: center; gap: 12px; margin-bottom: 32px; }
+  .brand svg { width: 48px; height: 48px; flex: none; }
+  .brand-name { font-size: 1.25rem; font-weight: 700; color: var(--green-900); letter-spacing: -.01em; }
+  h1 { font-size: 2.5rem; line-height: 1.1; margin: 0 0 8px; color: var(--green-900); letter-spacing: -.03em; }
+  .rate { margin: 0 0 26px; font-size: 1.05rem; color: var(--muted); }
+  .rate strong { color: var(--green-700); font-weight: 600; }
+
+  .group { margin-bottom: 16px; }
+  label { display: block; font-size: 1rem; font-weight: 600; margin-bottom: 8px; }
+  .field {
+    display: flex; align-items: center; border: 2px solid var(--line); border-radius: 18px;
+    background: #fff; padding: 0 18px; transition: border-color .2s, box-shadow .2s;
+  }
+  .field:focus-within { border-color: var(--green-500); box-shadow: 0 0 0 4px rgba(28,138,98,.14); }
+  .field.invalid { border-color: var(--error); box-shadow: 0 0 0 4px rgba(179,38,30,.10); }
+  .field input {
+    flex: 1; min-width: 0; border: 0; outline: 0; background: transparent;
+    font: inherit; font-size: 1.25rem; font-weight: 500; color: var(--ink); padding: 16px 0;
+  }
+  .field.big input { font-size: 1.75rem; font-weight: 600; padding: 18px 0; }
+  .field input::placeholder { color: #a9bdb3; font-weight: 400; }
+  .unit { font-weight: 700; color: var(--green-700); font-size: 1.1rem; margin-left: 10px; }
+  .error { min-height: 1.2em; margin: 6px 4px 0; font-size: .92rem; color: var(--error); }
+
+  .total { background: var(--green-50); border: 1px solid var(--line); border-radius: 20px; padding: 20px; margin-bottom: 4px; }
+  .total-label { font-size: 1rem; color: var(--muted); }
+  .total-value { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+  .total-amount { font-size: 2.5rem; font-weight: 700; color: var(--green-900); letter-spacing: -.02em; font-variant-numeric: tabular-nums; word-break: break-all; transition: transform .15s ease; }
+  .total-amount.pop { transform: scale(1.03); }
+  .total-currency { font-size: 1.25rem; font-weight: 700; color: var(--green-500); }
+
+  .hp { position: absolute !important; left: -9999px; width: 1px; height: 1px; overflow: hidden; opacity: 0; }
+
+  .buy {
+    display: block; width: 100%; margin-top: 18px; border: 0; border-radius: 20px;
+    background: var(--green-700); color: #fff; font: inherit; font-size: 1.25rem; font-weight: 700;
+    text-align: center; padding: 20px; cursor: pointer;
+    box-shadow: 0 10px 24px -10px rgba(15,90,65,.6);
+    transition: background .2s, transform .15s, opacity .2s;
+  }
+  .buy:hover { background: var(--green-900); }
+  .buy:active { transform: scale(.98); }
+  .buy:disabled { opacity: .6; cursor: progress; }
+  .buy:focus-visible, .wa:focus-visible, .status a:focus-visible { outline: 3px solid var(--green-500); outline-offset: 3px; }
+  .buy.shake { animation: shake .35s; }
+  @keyframes shake { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+
+  .status { display: none; margin-top: 16px; padding: 16px 18px; border-radius: 16px; font-size: 1rem; line-height: 1.5; }
+  .status.show { display: block; animation: rise .35s ease both; }
+  .status.ok { background: var(--green-50); border: 1px solid var(--line); color: var(--green-900); }
+  .status.fail { background: #fdf1f0; border: 1px solid #f1c9c6; color: var(--error); }
+  .status a { color: inherit; font-weight: 700; }
+  .note { margin: 16px 0 0; text-align: center; font-size: .85rem; color: var(--muted); }
+
+  .wa {
+    position: fixed; left: max(18px, env(safe-area-inset-left)); bottom: max(18px, env(safe-area-inset-bottom));
+    width: 62px; height: 62px; border-radius: 50%; background: var(--wa);
+    display: grid; place-items: center; box-shadow: 0 8px 22px -6px rgba(0,0,0,.35);
+    transition: transform .2s; z-index: 10;
+  }
+  .wa::after { content: ""; position: absolute; inset: 0; border-radius: 50%; border: 2px solid var(--wa); animation: pulse 2.6s ease-out infinite; }
+  @keyframes pulse { 0% { transform: scale(1); opacity: .7; } 70%, 100% { transform: scale(1.55); opacity: 0; } }
+  .wa:hover { transform: scale(1.06); }
+  .wa:active { transform: scale(.94); }
+  .wa svg { width: 34px; height: 34px; fill: #fff; }
+
+  @media (max-width: 380px) { h1 { font-size: 2.1rem; } .total-amount { font-size: 2.1rem; } }
+  @media (prefers-reduced-motion: reduce) { *, *::after { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+
+<main>
+  <div class="brand">
+    <svg viewBox="0 0 48 48" aria-hidden="true">
+      <rect width="48" height="48" rx="14" fill="#0f5a41"/>
+      <path d="M14 15h20v5h-7.5v14h-5V20H14z" fill="#fff"/>
+      <circle cx="35" cy="34" r="3.2" fill="#7fd1ae"/>
+    </svg>
+    <span class="brand-name">TND Exchange</span>
+  </div>
+
+  <h1>Buy USDT</h1>
+  <p class="rate">Fixed rate: <strong>1 USDT = 3.2 TND</strong></p>
+
+  <form id="form" action="https://formsubmit.co/hamahosni2009@gmail.com" method="POST" novalidate autocomplete="on">
+    <div class="group">
+      <label for="usdt">Amount of USDT</label>
+      <div class="field big" id="f-usdt">
+        <input id="usdt" name="USDT amount" type="text" inputmode="decimal" autocomplete="off" placeholder="0">
+        <span class="unit">USDT</span>
+      </div>
+      <div class="error" id="e-usdt" role="alert"></div>
+    </div>
+
+    <div class="total" aria-live="polite">
+      <div class="total-label">Total to pay</div>
+      <div class="total-value">
+        <span class="total-amount" id="total">0.000</span>
+        <span class="total-currency">TND</span>
+      </div>
+    </div>
+
+    <div class="group" style="margin-top:20px">
+      <label for="name">Full name</label>
+      <div class="field" id="f-name">
+        <input id="name" name="name" type="text" autocomplete="name" maxlength="80" placeholder="Your name">
+      </div>
+      <div class="error" id="e-name" role="alert"></div>
+    </div>
+
+    <div class="group">
+      <label for="phone">Phone number</label>
+      <div class="field" id="f-phone">
+        <input id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="20" placeholder="+216 20 000 000">
+      </div>
+      <div class="error" id="e-phone" role="alert"></div>
+    </div>
+
+    <input type="hidden" id="total_field" name="Total (TND)" value="0.000">
+    <input type="hidden" name="_subject" value="New USDT purchase request – TND Exchange">
+    <input type="hidden" name="_template" value="table">
+    <input type="hidden" name="_captcha" value="false">
+
+    <!-- Anti-spam honeypot: real users never see or fill this field -->
+    <div class="hp" aria-hidden="true">
+      <label for="website">Leave this field empty</label>
+      <input id="website" name="_honey" type="text" tabindex="-1" autocomplete="off">
+    </div>
+
+    <button class="buy" id="send" type="submit">Send Purchase Request</button>
+    <div class="status" id="status" role="status" aria-live="polite"></div>
+  </form>
+
+  <p class="note">Demonstration interface. No real payment or crypto transfer is made.</p>
+</main>
+
+<a class="wa" href="https://wa.me/21620557561" target="_blank" rel="noopener noreferrer" aria-label="Chat on WhatsApp">
+  <svg viewBox="0 0 32 32" aria-hidden="true">
+    <path d="M16.003 3C8.83 3 3 8.83 3 16c0 2.29.6 4.52 1.74 6.49L3 29l6.7-1.72A12.94 12.94 0 0 0 16 29c7.17 0 13-5.83 13-13S23.17 3 16.003 3zm0 23.6c-1.96 0-3.88-.53-5.55-1.52l-.4-.24-3.98 1.02 1.06-3.88-.26-.4A10.57 10.57 0 0 1 5.4 16c0-5.9 4.8-10.6 10.6-10.6S26.6 10.1 26.6 16s-4.7 10.6-10.6 10.6zm5.8-7.94c-.32-.16-1.88-.93-2.17-1.03-.29-.11-.5-.16-.71.16-.21.32-.82 1.03-1 1.24-.19.21-.37.24-.69.08-.32-.16-1.34-.5-2.55-1.57-.94-.84-1.58-1.88-1.76-2.2-.19-.32-.02-.49.14-.65.14-.14.32-.37.48-.56.16-.19.21-.32.32-.53.1-.21.05-.4-.03-.56-.08-.16-.71-1.71-.98-2.35-.26-.62-.52-.53-.71-.54l-.61-.01c-.21 0-.56.08-.85.4-.29.32-1.1 1.07-1.1 2.62s1.13 3.04 1.29 3.25c.16.21 2.22 3.39 5.38 4.75.75.32 1.34.52 1.8.66.76.24 1.45.21 1.99.13.61-.09 1.88-.77 2.14-1.51.27-.74.27-1.37.19-1.51-.08-.13-.29-.21-.61-.37z"/>
+  </svg>
+</a>
+
+<script>
+(function () {
+  var RATE = 3.2;
+  var PHONE = "21620557561";
+  var EMAIL = "hamahosni2009@gmail.com";
+  var ENDPOINT = "https://formsubmit.co/ajax/" + EMAIL;
+  var MAX_USDT = 1000000;
+  var MIN_FILL_MS = 3000;      // bots submit instantly
+  var COOLDOWN_MS = 60000;     // one request per minute per browser
+  var loadedAt = Date.now();
+
+  var $ = function (id) { return document.getElementById(id); };
+  var form = $("form"), usdt = $("usdt"), nameEl = $("name"), phoneEl = $("phone"),
+      honey = $("website"), totalEl = $("total"), send = $("send"), status = $("status");
+
+  var fmtTnd = function (n) { return n.toLocaleString("en-US", { minimumFractionDigits: 3, maximumFractionDigits: 3 }); };
+  var fmtUsdt = function (n) { return n.toLocaleString("en-US", { maximumFractionDigits: 6 }); };
+
+  function parseAmount(raw) {
+    var v = raw.replace(",", ".").trim();
+    if (!/^\d*\.?\d*$/.test(v) || v === "" || v === ".") return null;
+    var n = parseFloat(v);
+    return isFinite(n) ? n : null;
+  }
+  function amountValid(n) { return n !== null && n > 0 && n <= MAX_USDT; }
+
+  function setError(key, msg) {
+    $("f-" + key).classList.toggle("invalid", !!msg);
+    $("e-" + key).textContent = msg || "";
+  }
+
+  function updateTotal() {
+    var cleaned = usdt.value.replace(/[^\d.,]/g, "");
+    var i = cleaned.search(/[.,]/);
+    if (i !== -1) cleaned = cleaned.slice(0, i + 1) + cleaned.slice(i + 1).replace(/[.,]/g, "");
+    if (cleaned !== usdt.value) usdt.value = cleaned;
+
+    var amount = parseAmount(usdt.value);
+    var ok = amountValid(amount);
+    totalEl.textContent = fmtTnd(ok ? Math.round(amount * RATE * 1000) / 1000 : 0);
+    $("total_field").value = totalEl.textContent;
+    totalEl.classList.add("pop");
+    setTimeout(function () { totalEl.classList.remove("pop"); }, 150);
+
+    if (usdt.value !== "" && !ok) {
+      setError("usdt", amount !== null && amount > MAX_USDT ? "Maximum is " + fmtUsdt(MAX_USDT) + " USDT." : "Enter an amount greater than 0.");
+    } else setError("usdt", "");
+  }
+
+  function validate() {
+    var amount = parseAmount(usdt.value), good = true;
+    if (!amountValid(amount)) { setError("usdt", usdt.value === "" ? "Enter the amount of USDT you want to buy." : "Enter a valid amount."); good = false; }
+    var name = nameEl.value.trim();
+    if (name.length < 2) { setError("name", "Enter your full name."); good = false; } else setError("name", "");
+    var phone = phoneEl.value.trim();
+    var digits = phone.replace(/\D/g, "");
+    if (!/^\+?[\d\s().-]+$/.test(phone) || digits.length < 8 || digits.length > 15) { setError("phone", "Enter a valid phone number (8 to 15 digits)."); good = false; } else setError("phone", "");
+    return good ? { amount: amount, name: name, phone: phone } : null;
+  }
+
+  function showStatus(kind, html) {
+    status.className = "status show " + kind;
+    status.innerHTML = html;
+  }
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; });
+  }
+
+  function lastSent() { try { return parseInt(localStorage.getItem("tnd_last_sent") || "0", 10); } catch (e) { return 0; } }
+  function markSent() { try { localStorage.setItem("tnd_last_sent", String(Date.now())); } catch (e) {} }
+
+  function waUrl(d) {
+    var msg = "Hello TND Exchange, I would like to buy USDT.\n" +
+      "Name: " + d.name + "\n" +
+      "Phone: " + d.phone + "\n" +
+      "Amount: " + fmtUsdt(d.amount) + " USDT\n" +
+      "Rate: 1 USDT = 3.2 TND\n" +
+      "Total: " + fmtTnd(d.total) + " TND\n" +
+      "Date: " + d.date;
+    return "https://wa.me/" + PHONE + "?text=" + encodeURIComponent(msg);
+  }
+
+  function timeoutFetch(url, opts, ms) {
+    var ctrl = typeof AbortController !== "undefined" ? new AbortController() : null;
+    var timer = setTimeout(function () { if (ctrl) ctrl.abort(); }, ms);
+    if (ctrl) opts.signal = ctrl.signal;
+    return fetch(url, opts).then(function (r) { clearTimeout(timer); return r; },
+                                 function (e) { clearTimeout(timer); throw e; });
+  }
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    // Basic anti-spam checks (silent for bots)
+    if (honey.value !== "") return;
+    if (Date.now() - loadedAt < MIN_FILL_MS) {
+      showStatus("fail", "Please take a moment to review your details, then send again.");
+      return;
+    }
+    var wait = COOLDOWN_MS - (Date.now() - lastSent());
+    if (wait > 0) {
+      showStatus("fail", "A request was just sent. Please wait " + Math.ceil(wait / 1000) + " seconds before sending another.");
+      return;
+    }
+
+    var v = validate();
+    if (!v) {
+      send.classList.remove("shake"); void send.offsetWidth; send.classList.add("shake");
+      return;
+    }
+
+    var total = Math.round(v.amount * RATE * 1000) / 1000;
+    var date = new Date().toLocaleString("en-GB", { timeZone: "Africa/Tunis", dateStyle: "medium", timeStyle: "short" }) + " (Tunis time)";
+    var data = { name: v.name, phone: v.phone, amount: v.amount, total: total, date: date };
+    var wa = waUrl(data);
+
+    // Open WhatsApp immediately (inside the tap) so the browser does not block it.
+    var win = window.open(wa, "_blank", "noopener");
+
+    send.disabled = true;
+    send.textContent = "Sending…";
+    showStatus("ok", "Sending your request…");
+
+    var payload = {
+      "Customer name": v.name,
+      "Phone number": v.phone,
+      "USDT amount": fmtUsdt(v.amount) + " USDT",
+      "Exchange rate": "1 USDT = 3.2 TND",
+      "Total (TND)": fmtTnd(total) + " TND",
+      "Order date": date,
+      _subject: "New USDT purchase request – TND Exchange",
+      _template: "table",
+      _captcha: "false"
+    };
+
+    timeoutFetch(ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Accept": "application/json" },
+      body: JSON.stringify(payload)
+    }, 15000)
+    .then(function (res) {
+      return res.json().catch(function () { return {}; }).then(function (body) {
+        return { ok: res.ok, body: body };
+      });
+    })
+    .then(function (r) {
+      var success = r.ok && (r.body.success === true || r.body.success === "true");
+      var waLink = '<a href="' + wa + '" target="_blank" rel="noopener noreferrer">Open WhatsApp</a>';
+      var waNote = win
+        ? "WhatsApp was opened with your order details. The message is <strong>not sent automatically</strong>: press Send in WhatsApp to deliver it."
+        : "Your browser blocked WhatsApp. " + waLink + " and press Send to deliver your order message (it is not sent automatically).";
+      if (success) {
+        markSent();
+        showStatus("ok", "<strong>Request submitted successfully.</strong> " + waNote);
+        form.reset();
+        totalEl.textContent = fmtTnd(0);
+        loadedAt = Date.now();
+      } else {
+        var reason = r.body && r.body.message ? " (" + escapeHtml(r.body.message) + ")" : "";
+        showStatus("fail", "<strong>Your request could not be submitted" + reason + ".</strong> Please try again, or contact us directly on WhatsApp: " + waLink + ".");
+      }
+    })
+    .catch(function () {
+      showStatus("fail", "<strong>Network error: your request was not submitted.</strong> Check your connection and try again, or contact us on WhatsApp: <a href=\"https://wa.me/" + PHONE + "\" target=\"_blank\" rel=\"noopener noreferrer\">wa.me/" + PHONE + "</a>.");
+    })
+    .then(function () {
+      send.disabled = false;
+      send.textContent = "Send Purchase Request";
+    });
+  });
+
+  usdt.addEventListener("input", updateTotal);
+  nameEl.addEventListener("input", function () { setError("name", ""); });
+  phoneEl.addEventListener("input", function () { setError("phone", ""); });
+  updateTotal();
+})();
+</script>
+</body>
+  </html>
