@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,7 +9,7 @@
 <style>
   :root {
     --green-900: #0b3d2e; --green-700: #0f5a41; --green-500: #1c8a62;
-    --green-50: #f3f9f6; --ink: #12261f; --muted: #5f7a6f; --line: #d5e6dd;
+    --green-100: #e6f2ec; --green-50: #f3f9f6; --ink: #12261f; --muted: #5f7a6f; --line: #d5e6dd;
     --error: #b3261e; --wa: #25d366;
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -30,8 +31,8 @@
   .rate { margin: 0 0 26px; font-size: 1.05rem; color: var(--muted); }
   .rate strong { color: var(--green-700); font-weight: 600; }
 
-  .group { margin-bottom: 16px; }
-  label { display: block; font-size: 1rem; font-weight: 600; margin-bottom: 8px; }
+  .group { margin-bottom: 16px; position: relative; }
+  label, .label { display: block; font-size: 1rem; font-weight: 600; margin-bottom: 8px; }
   .field {
     display: flex; align-items: center; border: 2px solid var(--line); border-radius: 18px;
     background: #fff; padding: 0 18px; transition: border-color .2s, box-shadow .2s;
@@ -46,8 +47,40 @@
   .field input::placeholder { color: #a9bdb3; font-weight: 400; }
   .unit { font-weight: 700; color: var(--green-700); font-size: 1.1rem; margin-left: 10px; }
   .error { min-height: 1.2em; margin: 6px 4px 0; font-size: .92rem; color: var(--error); }
+  .hint { margin: 6px 4px 0; font-size: .9rem; color: var(--muted); }
 
-  .total { background: var(--green-50); border: 1px solid var(--line); border-radius: 20px; padding: 20px; margin-bottom: 4px; }
+  /* Custom select (with icons) */
+  .select-btn {
+    width: 100%; display: flex; align-items: center; gap: 12px; text-align: left;
+    border: 2px solid var(--line); border-radius: 18px; background: #fff; color: var(--ink);
+    font: inherit; font-size: 1.15rem; font-weight: 500; padding: 12px 16px; cursor: pointer;
+    transition: border-color .2s, box-shadow .2s;
+  }
+  .select-btn:focus-visible, .select-btn[aria-expanded="true"] { outline: 0; border-color: var(--green-500); box-shadow: 0 0 0 4px rgba(28,138,98,.14); }
+  .select-btn.invalid { border-color: var(--error); box-shadow: 0 0 0 4px rgba(179,38,30,.10); }
+  .select-btn .ico { width: 32px; height: 32px; flex: none; }
+  .select-btn .ico-empty { width: 32px; height: 32px; border-radius: 9px; background: var(--green-100); flex: none; }
+  .select-btn .txt { flex: 1; min-width: 0; }
+  .select-btn .txt.placeholder { color: #8fa89d; font-weight: 400; }
+  .select-btn .chev { width: 20px; height: 20px; flex: none; stroke: var(--green-700); fill: none; stroke-width: 2.4; transition: transform .2s; }
+  .select-btn[aria-expanded="true"] .chev { transform: rotate(180deg); }
+  .options {
+    display: none; position: absolute; left: 0; right: 0; top: calc(100% - 2px); z-index: 20; margin: 0; padding: 6px;
+    list-style: none; background: #fff; border: 2px solid var(--line); border-radius: 18px;
+    box-shadow: 0 18px 36px -16px rgba(11,61,46,.35);
+  }
+  .options.open { display: block; animation: rise .2s ease both; }
+  .options li {
+    display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 12px;
+    font-size: 1.1rem; font-weight: 500; cursor: pointer;
+  }
+  .options li svg { width: 32px; height: 32px; flex: none; }
+  .options li:hover, .options li.active { background: var(--green-50); }
+  .options li[aria-selected="true"] { background: var(--green-100); color: var(--green-900); font-weight: 700; }
+
+  .total { background: var(--green-50); border: 1px solid var(--line); border-radius: 20px; padding: 20px; margin: 4px 0 20px; }
+  .total-row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-size: 1rem; color: var(--muted); padding-bottom: 12px; margin-bottom: 12px; border-bottom: 1px dashed var(--line); }
+  .total-row b { color: var(--green-700); font-size: 1.1rem; font-variant-numeric: tabular-nums; }
   .total-label { font-size: 1rem; color: var(--muted); }
   .total-value { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
   .total-amount { font-size: 2.5rem; font-weight: 700; color: var(--green-900); letter-spacing: -.02em; font-variant-numeric: tabular-nums; word-break: break-all; transition: transform .15s ease; }
@@ -106,19 +139,20 @@
   </div>
 
   <h1>Buy USDT</h1>
-  <p class="rate">Fixed rate: <strong>1 USDT = 3.2 TND</strong></p>
+  <p class="rate">Minimum <strong>10 USDT</strong> · better rate on larger amounts</p>
 
-  <form id="form" action="https://formsubmit.co/hamahosni2009@gmail.com" method="POST" novalidate autocomplete="on">
+  <form id="form" action="https://formsubmit.co/hamahosni2009@gmail.com" method="POST" novalidate autocomplete="off">
     <div class="group">
       <label for="usdt">Amount of USDT</label>
       <div class="field big" id="f-usdt">
-        <input id="usdt" name="USDT amount" type="text" inputmode="decimal" autocomplete="off" placeholder="0">
+        <input id="usdt" name="USDT amount" type="text" inputmode="decimal" autocomplete="off" placeholder="10">
         <span class="unit">USDT</span>
       </div>
       <div class="error" id="e-usdt" role="alert"></div>
     </div>
 
     <div class="total" aria-live="polite">
+      <div class="total-row"><span>Rate</span><b id="rate">—</b></div>
       <div class="total-label">Total to pay</div>
       <div class="total-value">
         <span class="total-amount" id="total">0.000</span>
@@ -126,23 +160,22 @@
       </div>
     </div>
 
-    <div class="group" style="margin-top:20px">
-      <label for="name">Full name</label>
-      <div class="field" id="f-name">
-        <input id="name" name="name" type="text" autocomplete="name" maxlength="80" placeholder="Your name">
-      </div>
-      <div class="error" id="e-name" role="alert"></div>
+    <div class="group">
+      <span class="label" id="l-pay">Payment Method</span>
+      <div id="sel-pay"></div>
+      <div class="error" id="e-pay" role="alert"></div>
     </div>
 
     <div class="group">
-      <label for="phone">Phone number</label>
-      <div class="field" id="f-phone">
-        <input id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="20" placeholder="+216 20 000 000">
-      </div>
-      <div class="error" id="e-phone" role="alert"></div>
+      <span class="label" id="l-recv">Receiving Method</span>
+      <div id="sel-recv"></div>
+      <div class="error" id="e-recv" role="alert"></div>
     </div>
 
-    <input type="hidden" id="total_field" name="Total (TND)" value="0.000">
+    <input type="hidden" id="h-rate" name="Exchange rate" value="">
+    <input type="hidden" id="h-total" name="Total (TND)" value="0.000">
+    <input type="hidden" id="h-pay" name="Payment method" value="D17">
+    <input type="hidden" id="h-recv" name="Receiving method" value="">
     <input type="hidden" name="_subject" value="New USDT purchase request – TND Exchange">
     <input type="hidden" name="_template" value="table">
     <input type="hidden" name="_captcha" value="false">
@@ -168,21 +201,130 @@
 
 <script>
 (function () {
-  var RATE = 3.2;
   var PHONE = "21620557561";
   var EMAIL = "hamahosni2009@gmail.com";
   var ENDPOINT = "https://formsubmit.co/ajax/" + EMAIL;
+  var MIN_USDT = 10;
   var MAX_USDT = 1000000;
   var MIN_FILL_MS = 3000;      // bots submit instantly
   var COOLDOWN_MS = 60000;     // one request per minute per browser
   var loadedAt = Date.now();
 
+  /* Tiered pricing: 10–15 → 3.5 | >15–20 → 3.4 | >20–30 → 3.3 | >30 → 3.2 */
+  function rateFor(amount) {
+    if (amount < MIN_USDT) return null;
+    if (amount <= 15) return 3.5;
+    if (amount <= 20) return 3.4;
+    if (amount <= 30) return 3.3;
+    return 3.2;
+  }
+
+  /* Icons */
+  var ICONS = {
+    d17: '<svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#0f5a41"/><text x="16" y="21" text-anchor="middle" font-size="12.5" font-weight="800" fill="#fff" font-family="Arial,Helvetica,sans-serif">D17</text></svg>',
+    redot: '<svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#0f5a41"/><rect x="6" y="9" width="20" height="14" rx="3" fill="none" stroke="#fff" stroke-width="2"/><rect x="6" y="13" width="20" height="3" fill="#fff"/><circle cx="22" cy="20" r="1.4" fill="#7fd1ae"/></svg>',
+    binance: '<svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#12261f"/><path d="M16 6l3 3-3 3-3-3zM9 13l3 3-3 3-3-3zM23 13l3 3-3 3-3-3zM16 20l3 3-3 3-3-3zM16 13l3 3-3 3-3-3z" fill="#f3ba2f"/></svg>',
+    trc20: '<svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#1c8a62"/><g stroke="#fff" stroke-width="1.8" fill="none"><path d="M16 9l-7 12M16 9l7 12M9 21h14"/></g><g fill="#fff"><circle cx="16" cy="9" r="3"/><circle cx="9" cy="21" r="3"/><circle cx="23" cy="21" r="3"/></g></svg>'
+  };
+  var CHEV = '<svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
+
+  var PAY_OPTIONS = [{ value: "D17", icon: ICONS.d17 }];
+  var RECV_OPTIONS = [
+    { value: "RedotPay", icon: ICONS.redot },
+    { value: "Binance", icon: ICONS.binance },
+    { value: "TRC20", icon: ICONS.trc20 }
+  ];
+
   var $ = function (id) { return document.getElementById(id); };
-  var form = $("form"), usdt = $("usdt"), nameEl = $("name"), phoneEl = $("phone"),
-      honey = $("website"), totalEl = $("total"), send = $("send"), status = $("status");
+  var form = $("form"), usdt = $("usdt"), honey = $("website"), totalEl = $("total"),
+      rateEl = $("rate"), send = $("send"), status = $("status");
 
   var fmtTnd = function (n) { return n.toLocaleString("en-US", { minimumFractionDigits: 3, maximumFractionDigits: 3 }); };
   var fmtUsdt = function (n) { return n.toLocaleString("en-US", { maximumFractionDigits: 6 }); };
+
+  /* Accessible custom select with icons */
+  function makeSelect(root, labelId, options, hidden, placeholder, onChange) {
+    var uid = root.id;
+    root.innerHTML =
+      '<button type="button" class="select-btn" id="' + uid + '-btn" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="' + labelId + ' ' + uid + '-btn"></button>' +
+      '<ul class="options" id="' + uid + '-list" role="listbox" tabindex="-1" aria-labelledby="' + labelId + '"></ul>';
+    var btn = $(uid + "-btn"), list = $(uid + "-list");
+    var current = null, active = -1;
+
+    options.forEach(function (o, i) {
+      var li = document.createElement("li");
+      li.setAttribute("role", "option");
+      li.id = uid + "-opt" + i;
+      li.setAttribute("aria-selected", "false");
+      li.innerHTML = o.icon + "<span>" + o.value + "</span>";
+      li.addEventListener("mousedown", function (e) { e.preventDefault(); });
+      li.addEventListener("click", function () { choose(i); close(true); });
+      list.appendChild(li);
+    });
+
+    function paint() {
+      var o = current === null ? null : options[current];
+      btn.innerHTML = (o ? o.icon : '<span class="ico-empty"></span>') +
+        '<span class="txt' + (o ? "" : " placeholder") + '">' + (o ? o.value : placeholder) + "</span>" + CHEV;
+      Array.prototype.forEach.call(list.children, function (li, i) {
+        li.setAttribute("aria-selected", i === current ? "true" : "false");
+      });
+    }
+    function setActive(i) {
+      active = i;
+      Array.prototype.forEach.call(list.children, function (li, j) { li.classList.toggle("active", j === i); });
+      if (i >= 0) btn.setAttribute("aria-activedescendant", uid + "-opt" + i);
+    }
+    function open() {
+      list.classList.add("open");
+      btn.setAttribute("aria-expanded", "true");
+      setActive(current === null ? 0 : current);
+    }
+    function close(focusBtn) {
+      list.classList.remove("open");
+      btn.setAttribute("aria-expanded", "false");
+      btn.removeAttribute("aria-activedescendant");
+      if (focusBtn) btn.focus();
+    }
+    function choose(i) {
+      current = i;
+      hidden.value = i === null ? "" : options[i].value;
+      btn.classList.remove("invalid");
+      paint();
+      if (onChange) onChange();
+    }
+    function isOpen() { return list.classList.contains("open"); }
+
+    btn.addEventListener("click", function () { isOpen() ? close(false) : open(); });
+    btn.addEventListener("keydown", function (e) {
+      var k = e.key;
+      if (k === "ArrowDown" || k === "ArrowUp") {
+        e.preventDefault();
+        if (!isOpen()) { open(); return; }
+        var n = options.length;
+        setActive((active + (k === "ArrowDown" ? 1 : -1) + n) % n);
+      } else if (k === "Enter" || k === " ") {
+        e.preventDefault();
+        if (!isOpen()) open(); else { choose(active); close(true); }
+      } else if (k === "Escape" && isOpen()) {
+        e.preventDefault(); close(true);
+      } else if (k === "Tab" && isOpen()) {
+        close(false);
+      }
+    });
+    document.addEventListener("click", function (e) { if (isOpen() && !root.contains(e.target)) close(false); });
+
+    paint();
+    return {
+      select: function (i) { choose(i); },
+      clear: function () { current = null; hidden.value = ""; paint(); },
+      flag: function (on) { btn.classList.toggle("invalid", !!on); }
+    };
+  }
+
+  var paySel = makeSelect($("sel-pay"), "l-pay", PAY_OPTIONS, $("h-pay"), "Select payment method", function () { $("e-pay").textContent = ""; });
+  var recvSel = makeSelect($("sel-recv"), "l-recv", RECV_OPTIONS, $("h-recv"), "Select receiving method", function () { $("e-recv").textContent = ""; });
+  paySel.select(0); // D17 is the only payment method, preselected
 
   function parseAmount(raw) {
     var v = raw.replace(",", ".").trim();
@@ -190,11 +332,17 @@
     var n = parseFloat(v);
     return isFinite(n) ? n : null;
   }
-  function amountValid(n) { return n !== null && n > 0 && n <= MAX_USDT; }
 
-  function setError(key, msg) {
-    $("f-" + key).classList.toggle("invalid", !!msg);
-    $("e-" + key).textContent = msg || "";
+  function setAmountError(msg) {
+    $("f-usdt").classList.toggle("invalid", !!msg);
+    $("e-usdt").textContent = msg || "";
+  }
+
+  function calc() {
+    var amount = parseAmount(usdt.value);
+    if (amount === null || amount < MIN_USDT || amount > MAX_USDT) return null;
+    var rate = rateFor(amount);
+    return { amount: amount, rate: rate, total: Math.round(amount * rate * 1000) / 1000 };
   }
 
   function updateTotal() {
@@ -204,26 +352,33 @@
     if (cleaned !== usdt.value) usdt.value = cleaned;
 
     var amount = parseAmount(usdt.value);
-    var ok = amountValid(amount);
-    totalEl.textContent = fmtTnd(ok ? Math.round(amount * RATE * 1000) / 1000 : 0);
-    $("total_field").value = totalEl.textContent;
+    var c = calc();
+
+    rateEl.textContent = c ? "1 USDT = " + c.rate.toFixed(3) + " TND" : "—";
+    totalEl.textContent = fmtTnd(c ? c.total : 0);
+    $("h-rate").value = c ? "1 USDT = " + c.rate.toFixed(3) + " TND" : "";
+    $("h-total").value = totalEl.textContent;
     totalEl.classList.add("pop");
     setTimeout(function () { totalEl.classList.remove("pop"); }, 150);
 
-    if (usdt.value !== "" && !ok) {
-      setError("usdt", amount !== null && amount > MAX_USDT ? "Maximum is " + fmtUsdt(MAX_USDT) + " USDT." : "Enter an amount greater than 0.");
-    } else setError("usdt", "");
+    if (usdt.value === "") setAmountError("");
+    else if (amount === null || amount <= 0) setAmountError("Enter a valid amount of at least " + MIN_USDT + " USDT.");
+    else if (amount < MIN_USDT) setAmountError("Minimum amount is " + MIN_USDT + " USDT. Please enter " + MIN_USDT + " USDT or more.");
+    else if (amount > MAX_USDT) setAmountError("Maximum amount is " + fmtUsdt(MAX_USDT) + " USDT.");
+    else setAmountError("");
   }
 
   function validate() {
-    var amount = parseAmount(usdt.value), good = true;
-    if (!amountValid(amount)) { setError("usdt", usdt.value === "" ? "Enter the amount of USDT you want to buy." : "Enter a valid amount."); good = false; }
-    var name = nameEl.value.trim();
-    if (name.length < 2) { setError("name", "Enter your full name."); good = false; } else setError("name", "");
-    var phone = phoneEl.value.trim();
-    var digits = phone.replace(/\D/g, "");
-    if (!/^\+?[\d\s().-]+$/.test(phone) || digits.length < 8 || digits.length > 15) { setError("phone", "Enter a valid phone number (8 to 15 digits)."); good = false; } else setError("phone", "");
-    return good ? { amount: amount, name: name, phone: phone } : null;
+    var good = true;
+    var amount = parseAmount(usdt.value);
+    if (usdt.value === "") { setAmountError("Enter the amount of USDT (minimum " + MIN_USDT + " USDT)."); good = false; }
+    else if (!calc()) {
+      setAmountError(amount !== null && amount > MAX_USDT ? "Maximum amount is " + fmtUsdt(MAX_USDT) + " USDT." : "Minimum amount is " + MIN_USDT + " USDT. Please enter " + MIN_USDT + " USDT or more.");
+      good = false;
+    }
+    if (!$("h-pay").value) { $("e-pay").textContent = "Select a payment method."; paySel.flag(true); good = false; }
+    if (!$("h-recv").value) { $("e-recv").textContent = "Select a receiving method."; recvSel.flag(true); good = false; }
+    return good ? calc() : null;
   }
 
   function showStatus(kind, html) {
@@ -239,11 +394,11 @@
 
   function waUrl(d) {
     var msg = "Hello TND Exchange, I would like to buy USDT.\n" +
-      "Name: " + d.name + "\n" +
-      "Phone: " + d.phone + "\n" +
       "Amount: " + fmtUsdt(d.amount) + " USDT\n" +
-      "Rate: 1 USDT = 3.2 TND\n" +
+      "Rate: 1 USDT = " + d.rate.toFixed(3) + " TND\n" +
       "Total: " + fmtTnd(d.total) + " TND\n" +
+      "Payment method: " + d.pay + "\n" +
+      "Receiving method: " + d.recv + "\n" +
       "Date: " + d.date;
     return "https://wa.me/" + PHONE + "?text=" + encodeURIComponent(msg);
   }
@@ -271,15 +426,14 @@
       return;
     }
 
-    var v = validate();
-    if (!v) {
+    var c = validate();
+    if (!c) {
       send.classList.remove("shake"); void send.offsetWidth; send.classList.add("shake");
       return;
     }
 
-    var total = Math.round(v.amount * RATE * 1000) / 1000;
     var date = new Date().toLocaleString("en-GB", { timeZone: "Africa/Tunis", dateStyle: "medium", timeStyle: "short" }) + " (Tunis time)";
-    var data = { name: v.name, phone: v.phone, amount: v.amount, total: total, date: date };
+    var data = { amount: c.amount, rate: c.rate, total: c.total, pay: $("h-pay").value, recv: $("h-recv").value, date: date };
     var wa = waUrl(data);
 
     // Open WhatsApp immediately (inside the tap) so the browser does not block it.
@@ -290,11 +444,11 @@
     showStatus("ok", "Sending your request…");
 
     var payload = {
-      "Customer name": v.name,
-      "Phone number": v.phone,
-      "USDT amount": fmtUsdt(v.amount) + " USDT",
-      "Exchange rate": "1 USDT = 3.2 TND",
-      "Total (TND)": fmtTnd(total) + " TND",
+      "USDT amount": fmtUsdt(c.amount) + " USDT",
+      "Exchange rate": "1 USDT = " + c.rate.toFixed(3) + " TND",
+      "Total (TND)": fmtTnd(c.total) + " TND",
+      "Payment method": data.pay,
+      "Receiving method": data.recv,
       "Order date": date,
       _subject: "New USDT purchase request – TND Exchange",
       _template: "table",
@@ -321,7 +475,9 @@
         markSent();
         showStatus("ok", "<strong>Request submitted successfully.</strong> " + waNote);
         form.reset();
-        totalEl.textContent = fmtTnd(0);
+        recvSel.clear();
+        paySel.select(0);
+        updateTotal();
         loadedAt = Date.now();
       } else {
         var reason = r.body && r.body.message ? " (" + escapeHtml(r.body.message) + ")" : "";
@@ -338,10 +494,8 @@
   });
 
   usdt.addEventListener("input", updateTotal);
-  nameEl.addEventListener("input", function () { setError("name", ""); });
-  phoneEl.addEventListener("input", function () { setError("phone", ""); });
   updateTotal();
 })();
 </script>
 </body>
-  </html>
+</html>
