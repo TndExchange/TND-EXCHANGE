@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -58,8 +57,7 @@
   }
   .select-btn:focus-visible, .select-btn[aria-expanded="true"] { outline: 0; border-color: var(--green-500); box-shadow: 0 0 0 4px rgba(28,138,98,.14); }
   .select-btn.invalid { border-color: var(--error); box-shadow: 0 0 0 4px rgba(179,38,30,.10); }
-  .select-btn .ico { width: 32px; height: 32px; flex: none; }
-  .select-btn .ico-empty { width: 32px; height: 32px; border-radius: 9px; background: var(--green-100); flex: none; }
+  .logo { display: block; width: 32px; height: 32px; min-width: 32px; max-width: 32px; max-height: 32px; flex: none; object-fit: contain; }
   .select-btn .txt { flex: 1; min-width: 0; }
   .select-btn .txt.placeholder { color: #8fa89d; font-weight: 400; }
   .select-btn .chev { width: 20px; height: 20px; flex: none; stroke: var(--green-700); fill: none; stroke-width: 2.4; transition: transform .2s; }
@@ -74,7 +72,6 @@
     display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 12px;
     font-size: 1.1rem; font-weight: 500; cursor: pointer;
   }
-  .options li svg { width: 32px; height: 32px; flex: none; }
   .options li:hover, .options li.active { background: var(--green-50); }
   .options li[aria-selected="true"] { background: var(--green-100); color: var(--green-900); font-weight: 700; }
 
@@ -219,20 +216,26 @@
     return 3.2;
   }
 
-  /* Icons */
-  var ICONS = {
-    d17: '<svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#0f5a41"/><text x="16" y="21" text-anchor="middle" font-size="12.5" font-weight="800" fill="#fff" font-family="Arial,Helvetica,sans-serif">D17</text></svg>',
-    redot: '<svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#0f5a41"/><rect x="6" y="9" width="20" height="14" rx="3" fill="none" stroke="#fff" stroke-width="2"/><rect x="6" y="13" width="20" height="3" fill="#fff"/><circle cx="22" cy="20" r="1.4" fill="#7fd1ae"/></svg>',
-    binance: '<svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#12261f"/><path d="M16 6l3 3-3 3-3-3zM9 13l3 3-3 3-3-3zM23 13l3 3-3 3-3-3zM16 20l3 3-3 3-3-3zM16 13l3 3-3 3-3-3z" fill="#f3ba2f"/></svg>',
-    trc20: '<svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#1c8a62"/><g stroke="#fff" stroke-width="1.8" fill="none"><path d="M16 9l-7 12M16 9l7 12M9 21h14"/></g><g fill="#fff"><circle cx="16" cy="9" r="3"/><circle cx="9" cy="21" r="3"/><circle cx="23" cy="21" r="3"/></g></svg>'
+  /* Official brand logos.
+     Logos are embedded as PNG data. To change one, replace its value with a file path
+     (e.g. "logos/d17.svg") or a new data URI. Leave "" to show the name only. */
+  var LOGO_FILES = {
+    D17: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAMAAACdt4HsAAAAYFBMVEXi4tue1fFxkLL95KeDnLr71G36xTpEbJljvOmesskNQn0eUYcIPnoYoN/9/v5Ms+ZsiK3n7PIopuHU5vEYSoMKm96Qp8IYoOCqu9D6yk10xOsoV4s3Y5NVeqO1xNZLcp1WT5fYAAAAIHRSTlP//////////////////////////////////////////3Fe9GAAAAIgSURBVHja7ZfbrqsgEIZHpFrbtQYQiiii7/+We0Db6E7syXXp30SUwMcccLBQi12qQeAuiQNwAA7ABkDJt6V3WjAEtdMFW+0EDPYOsGrRXc8SnU7PwBinwYzPYvY+0j0AUi8Bt7t+swi/GuMV8h8z6zK+AjRNI86ivtEPkV2M9z1xYkPy3ofXgDplmAgZAXhpJoBDpZAZw94EdBPA4RgB/OcyxF7vr/ARgJQATso40Rrz8OAzwKzRm2EPAIwvcQ+AQmj3APTVe7UHwBc5/ApA2wj2ANwyh98AymUOvwCsc/gcQM9Z3dQ3vQTIVQ6fv41UDm5Nc5uKzQxQfpXDbUDzqAdzsSqNT5voYiS+A+hmZfdO2afYh7KErZIm4auaWD0AA/tmPizKehXk5wqwPFjUS6UxuOp462R6hEepZ2djVp8F6jN2Qmhq2rbN8dS2EO8gL9oiB19SpDxHFlDagMGtAYLSpwXWdEdNgXmbt5if6HI6YV7EkxB7UPQ2MaOklUP/nwVnzAhAczFLAJgAUEQnoJ0AyoWA3DtmQ4AtQKYjACYLaP02xiECfF8iqwJwyaQzI24BzsmF6HkCkPmzBaMqgWnpeBV65/tNC3QMRVw2ASCPMZhdCGS5t2zgvpIu4FYQuxSDuHQMYpEAMYie97akKEgHVztiP6wAWsQ0dgQSAF2yYEpjusCJtgFnoGmSGwAdOITh+E48AAfgbwF7//7/A4Ay7OVF76YqAAAAAElFTkSuQmCC",
+    RedotPay: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAMAAACdt4HsAAAAYFBMVEXiGjf+/v7hDCvjIT385unmOVLkJ0P519z72+Dymabwh5budof4x87nQVnoS2L1srzqVWv0p7L2u8TsZnrtbYDxkJ4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABrXmxfAAAAIHRSTlP/////////////////////////////AAAAAAAAAAAAAJ0wL0oAAAJSSURBVHjapZfruqwgCIYJT1PauX3/t7rtrAaOzeLXPKXvgHwQQpUzuVl2CXBbp39zp/Rmqptr9wogx0EDIlzmf6u5LwW4RYebb4iypgBgZiB2Hwywn2+Aht++IUSTBZguu31DtI4H9OLr/tVGDlBDmWFDAxqEUoKlAOX7I8IFqF/sD6M4ARO8M+xjgNQvAaBlBBiQFJ6vI19RpLZwCAHEASB0tdv+Rbp6IBg43gAqgCUqHGO5IDaATfnYPerfPKLcM7ECpMhJLagzygWgJFTTzWek/mcFqOR5zbWvlKB2QI+s0B9R4ENNHjDHT9tcD+5iwLwBkhy6HMA8jhEqRwrsbO5jHwPjjOPkAYkKg/XSbs1dNZJzwecBqgXTgz3XquMNqkCVQ+IvVFEfDVLg9X0ITKC6fYgdbj1AERWyR3sJVARcl5wiJIV0O6up6k8L7wEQkjmt+8OosgB9rZs4ebdZwJ2ECQsBH0ED4grJhFAGEPwhcoAwBD6NqkoALXWIIshiXNGrEjmAg+sFasMUtPcMDAfAw0DboJhc2tpZgLTWNk1Tjy4a85LuY3gAbe7RFF8C2jiC5S2AaqpvAGRbN4yQCOvJD0s54DGDbfouBsgZyUGpEGAajaQDJQA/+ZMDxt4iWIBTh2mgx+fuGHG4cv429gnzFSDKxrzfPLh75G+AYAb6CRDOUD8BwhnoPQD1VP0FgEN8EX0JQJGOcK8ACMvz2vfRpQAUMzGAlXmwdveuJm/h69dZnKbPCtnalz6fajXYUbKXb2k+uxlv4Txmjhf5+/9/DaYWGCbhEbYAAAAASUVORK5CYII=",
+    Binance: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAMAAACdt4HsAAAAYFBMVEUAAAD+/v7xuC7+xTHYpikiGgYZFAs3NzeWlpaeeR7JmiakfiC7u7tERERqamrJycmqgyEoKChXV1d+fn7b29vn5+ejfB/hrSuDZBn/0jUqIAgAAAAAAAAAAAAAAAAAAABeCK6jAAAAIHRSTlP///////////////////////////////////8AAAAAAGWBEw8AAAG/SURBVHja1Zdtu4IgDIZ3QpHUBN+r//9DTwolIEO65odz9qXL6rkd2xgDfogGfxgw1qLpbi/rGlGP3wJkX4BjRS+/AAhPbRgiESBaQKwVCYAala+I+gjQwIE1UcBQwKEVAw6QHBKMSwxQQ6LVYYCEZJMhwBD0X6ngKoYAIBi/K2NTMJJ7QBPWXy6simYTYgFc9Bih9gAtqkcIrQsQET1CEA6Ax/RhArcBIq5/ESbMBUBSaPQsyxjmQ7EBJK7n/E2YwvW4AnpUnwPkKKH/APwV3B+bfiM87qE1LIBxF+CSbfo3gZW5/7/RAAJV+CJ89JrASh6sRtglkRuC1nNuCKX1o51I8PdRNesXK/1RZtoHvavzWfk7agF01ncTs1xfHDGvfi/FyUVnADfr/exiL34J5kZYg2lX1G0HUHr/zk8rGUs1rY/PWT+qdEDmAEw9RAG6BflL4EdL6Nwm6AeRO0GsAkGMpTHT/ueKR9KYVkgcLyRyKZM3E3k7JzaUCm8oSS2tirQ0clNNaOtVvK2TDxb60UY+XOnHO3nAoI849CGLPObRB036qEsftunj/gkXDvqV54RL1wnXvhMunv/p8v0LXwoYvHMQTqgAAAAASUVORK5CYII=",
+    TRC20: ""   // no logo supplied yet: name only
   };
+  function logoHtml(o) {
+    if (!o.logo) return "";
+    return '<img class="logo" src="' + o.logo + '" alt="" width="32" height="32" onerror="this.remove()">';
+  }
   var CHEV = '<svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
 
-  var PAY_OPTIONS = [{ value: "D17", icon: ICONS.d17 }];
+  var PAY_OPTIONS = [{ value: "D17", logo: LOGO_FILES.D17 }];
   var RECV_OPTIONS = [
-    { value: "RedotPay", icon: ICONS.redot },
-    { value: "Binance", icon: ICONS.binance },
-    { value: "TRC20", icon: ICONS.trc20 }
+    { value: "RedotPay", logo: LOGO_FILES.RedotPay },
+    { value: "Binance", logo: LOGO_FILES.Binance },
+    { value: "TRC20", logo: LOGO_FILES.TRC20 }
   ];
 
   var $ = function (id) { return document.getElementById(id); };
@@ -256,7 +259,7 @@
       li.setAttribute("role", "option");
       li.id = uid + "-opt" + i;
       li.setAttribute("aria-selected", "false");
-      li.innerHTML = o.icon + "<span>" + o.value + "</span>";
+      li.innerHTML = logoHtml(o) + "<span>" + o.value + "</span>";
       li.addEventListener("mousedown", function (e) { e.preventDefault(); });
       li.addEventListener("click", function () { choose(i); close(true); });
       list.appendChild(li);
@@ -264,7 +267,7 @@
 
     function paint() {
       var o = current === null ? null : options[current];
-      btn.innerHTML = (o ? o.icon : '<span class="ico-empty"></span>') +
+      btn.innerHTML = (o ? logoHtml(o) : "") +
         '<span class="txt' + (o ? "" : " placeholder") + '">' + (o ? o.value : placeholder) + "</span>" + CHEV;
       Array.prototype.forEach.call(list.children, function (li, i) {
         li.setAttribute("aria-selected", i === current ? "true" : "false");
